@@ -9,6 +9,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import androidx.test.uiautomator.Until
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -108,8 +109,43 @@ class ChangeTextTest {
 
         val result = device.findObject(By.res(packageName, "textToBeChanged")).text
         assertEquals(result, textToSet)
+
+        Thread.sleep(5_000)
+}
+
+    @Test
+    fun testEmptyStringChange() {
+        val packageName = MODEL_PACKAGE
+        waitForPackage(packageName)
+
+        val initialText = device.findObject(By.res(packageName, "textToBeChanged")).text
+
+        device.findObject(By.res(packageName, "userInput")).text = "   "
+        device.findObject(By.res(packageName, "buttonChange")).click()
+
+        val result = device.findObject(By.res(packageName, "textToBeChanged")).text
+        assertEquals(initialText, result)
     }
 
+    @Test
+    fun testOpenTextInNewActivity() {
+        val packageName = MODEL_PACKAGE
+        waitForPackage(packageName)
+        val textToSet = "Netology"
+
+
+        val userInput = device.wait(Until.findObject(By.res(packageName, "userInput")), 5000)
+        userInput.text = textToSet
+
+        val button = device.wait(Until.findObject(By.res(packageName, "buttonActivity")), 5000)
+        assertNotNull("Кнопка buttonActivity не найдена", button)
+        button.click()
+
+        val resultView = device.wait(Until.findObject(By.res(packageName, "text")), 5000)
+
+        assertNotNull("Текст в новой Activity не появился", resultView)
+        assertEquals(textToSet, resultView.text)
+    }
 }
 
 
